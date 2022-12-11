@@ -1,6 +1,16 @@
 # Project Tracker
 A project management app based on Django
 
+# Features
+- Add projects
+- Create project boards (one board by default)
+- Add board sections (3 sections by default - To do, In Progress, Done)
+- Create task types (Default types: Task, Bug, Story)
+- Link project to organizations [TODO]
+- Project members [TODO]
+- Assign tasks to other team members [TODO]
+- Tasks with sub tasks [TODO]
+
 
 # Requirements
 - Backend
