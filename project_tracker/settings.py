@@ -59,7 +59,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'ckeditor',
     'ckeditor_uploader',
-    'django_filters'
+    'django_filters',
+    'core',
+    'projects',
+    'boards',
+    'tasks'
 ]
 
 
