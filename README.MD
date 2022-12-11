@@ -1,5 +1,5 @@
 # Project Tracker
-Project using Django and Angular
+A project management app based on Django
 
 # Dependencies
 > Python 3.8+
