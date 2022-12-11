@@ -4,4 +4,12 @@ from projects.models import Project
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        'id',
+        'uuid',
+        'name',
+        'user'
+    )
+    raw_id_fields = (
+        'user',
+    )

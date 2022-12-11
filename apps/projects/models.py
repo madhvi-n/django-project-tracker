@@ -22,6 +22,10 @@ class Project(TimeStampedModel):
         related_name="projects",
         on_delete=models.CASCADE
     )
+    
     class Meta:
         verbose_name = "Project"
         verbose_name_plural = "Projects"
+
+    def __str__(self):
+        return f"{self.name}"
