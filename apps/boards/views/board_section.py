@@ -6,8 +6,9 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
-from boards.models import BoardSection
+from boards.models import BoardSection, Board
 from boards.serializers import BoardSectionSerializer
+from projects.models import Project
 
 
 class BoardSectionPagination(PageNumberPagination):
@@ -23,14 +24,69 @@ class BoardSectionViewSet(BaseViewSet):
         queryset = self.queryset
         if self.kwargs != {}:
             if 'board_pk' in self.kwargs:
-                return self.queryset.filter(board__pk=self.kwargs['board_pk'])
+                queryset = queryset.filter(board__pk=self.kwargs['board_pk'])
         return queryset
 
     def create(self, request, project_uuid=None, board_pk=None):
-        pass
+        data = request.data
+        try:
+            data._mutable = True
+            project = Project.objects.get(uuid=project_uuid)
+            board = Board.objects.get(pk=board_pk)
+            data['project'] = project.id
+            data['board'] = board.id
+            data._mutable = False
+        except Project.DoesNotExist:
+            return Response(
+                {'error': 'Project does not exist'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Board.DoesNotExist:
+            return Response(
+                {'error': 'Board does not exist'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-    def update(self, request, project_uuid=None, board_pk=None, section_pk=None):
-        pass
+    def update(self, request, project_uuid=None, board_pk=None, pk=None):
+        data = request.data
+        try:
+            data._mutable = True
+            project = Project.objects.get(uuid=project_uuid)
+            board = Board.objects.get(pk=board_pk)
+            data['project'] = project.id
+            data['board'] = board.id
+            data._mutable = False
+        except Project.DoesNotExist:
+            return Response(
+                {'error': 'Project does not exist'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Board.DoesNotExist:
+            return Response(
+                {'error': 'Board does not exist'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=data)
+        if (serializer.is_valid(raise_exception=False)):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, project_uuid=None, board_pk=None, section_pk=None):
-        pass
+    def destroy(self, request, project_uuid=None, board_pk=None, pk=None):
+        section = self.get_object()
+        project = Project.objects.get(uuid=project_uuid)
+
+        if project.user != request.user:
+            return Response(
+                {'error': 'User not authorized'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        section.delete()
+        return Response({'success': True}, status=status.HTTP_200_OK)
