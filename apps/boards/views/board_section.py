@@ -11,7 +11,7 @@ from boards.serializers import BoardSectionSerializer
 
 
 class BoardSectionPagination(PageNumberPagination):
-    page_size = 100
+    page_size = 24
 
 
 class BoardSectionViewSet(BaseViewSet):
