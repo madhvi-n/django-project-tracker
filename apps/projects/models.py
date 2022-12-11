@@ -22,8 +22,9 @@ class Project(TimeStampedModel):
         related_name="projects",
         on_delete=models.CASCADE
     )
-    
+
     class Meta:
+        ordering = ['created_at']
         verbose_name = "Project"
         verbose_name_plural = "Projects"
 
