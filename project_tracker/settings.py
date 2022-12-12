@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'allauth',
     'allauth.account',
+    'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
