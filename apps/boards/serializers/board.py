@@ -6,4 +6,4 @@ from boards.models import Board
 class BoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
-        fields = '__all__'
+        fields = ('id', 'project', 'name', 'key')

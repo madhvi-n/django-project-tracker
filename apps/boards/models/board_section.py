@@ -18,4 +18,4 @@ class BoardSection(TimeStampedModel):
         verbose_name_plural = "Board Sections"
 
     def __str__(self):
-        return f"{self.title}"
+        return f"Section {self.pk}: {self.title}"

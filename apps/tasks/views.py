@@ -8,6 +8,11 @@ from rest_framework.permissions import IsAuthenticated
 
 from tasks.models import TaskType, Task
 from tasks.serializers import TaskTypeSerializer, TaskSerializer
+from projects.models import Project
+
+
+class TaskPagination(PageNumberPagination):
+    page_size = 24
 
 
 class TaskTypeViewSet(BaseViewSet):
@@ -18,40 +23,113 @@ class TaskTypeViewSet(BaseViewSet):
         queryset = self.queryset
         if self.kwargs != {}:
             if 'project_uuid' in self.kwargs:
-                return self.queryset.filter(project__uuid=self.kwargs['project_uuid'])
+                queryset = queryset.filter(project__uuid=self.kwargs['project_uuid'])
         return queryset
 
     def create(self, request, project_uuid=None):
-        pass
+        data = request.data
+        user = request.user
 
-    def update(self, request, project_uuid=None, board_pk=None):
-        pass
+        if not user.is_authenticated:
+            return Response({'error':'The user is anonymous'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    def destroy(self, request, project_uuid=None, board_pk=None):
-        pass
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, project_uuid=None, pk=None):
+        data = request.data
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({'error':'The user is anonymous'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, project_uuid=None, pk=None):
+        task_type = self.get_object()
+        project = Project.objects.get(uuid=project_uuid)
+
+        if project.user != request.user:
+            return Response(
+                {'error': 'User not authorized'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        task_type.delete()
+        return Response({'success': True}, status=status.HTTP_200_OK)
 
 
 class TaskViewSet(BaseViewSet):
     queryset = Task.objects.all()
+    pagination_class = TaskPagination
     serializer_class = TaskSerializer
 
     def get_queryset(self):
         queryset = self.queryset
         if self.kwargs != {}:
             if 'section_pk' in self.kwargs:
-                return self.queryset.filter(section__pk=self.kwargs['section_pk'])
+                return self.queryset.filter(board_section__pk=self.kwargs['section_pk'])
         return queryset
 
     def create(self, request, project_uuid=None, board_pk=None, section_pk=None):
-        pass
+        data = request.data
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({'error':'The user is anonymous'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, project_uuid=None, board_pk=None, section_pk=None, pk=None):
-        pass
+        data = request.data
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({'error':'The user is anonymous'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, project_uuid=None, board_pk=None, section_pk=None, pk=None):
-        pass
+        task = self.get_object()
+        if task.reporter != request.user:
+            return Response(
+                {'error': 'User not authorized'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        task.delete()
+        return Response({'success': True}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['put'])
     def change_task_type(self, request, project_uuid=None, board_pk=None, section_pk=None, pk=None):
         task = self.get_object()
-        pass
+        data = request.data
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'error':'The user is anonymous'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if task.reporter != request.user:
+            return Response(
+                {'error': 'User not authorized'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        task.task_type = data['task_type']
+        task.save()
+        return Response({'success': True}, status=status.HTTP_200_OK)
