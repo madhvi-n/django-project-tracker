@@ -30,12 +30,11 @@ class BoardSectionViewSet(BaseViewSet):
     def create(self, request, project_uuid=None, board_pk=None):
         data = request.data
         try:
-            data._mutable = True
             project = Project.objects.get(uuid=project_uuid)
             board = Board.objects.get(pk=board_pk)
-            data['project'] = project.id
-            data['board'] = board.id
-            data._mutable = False
+            new_data = data.copy()
+            new_data['project'] = project.id
+            new_data['board'] = board.id
         except Project.DoesNotExist:
             return Response(
                 {'error': 'Project does not exist'},
@@ -47,7 +46,7 @@ class BoardSectionViewSet(BaseViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         serializer_class = self.get_serializer_class()
-        serializer = serializer_class(data=data)
+        serializer = serializer_class(data=new_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -56,12 +55,11 @@ class BoardSectionViewSet(BaseViewSet):
     def update(self, request, project_uuid=None, board_pk=None, pk=None):
         data = request.data
         try:
-            data._mutable = True
             project = Project.objects.get(uuid=project_uuid)
             board = Board.objects.get(pk=board_pk)
-            data['project'] = project.id
-            data['board'] = board.id
-            data._mutable = False
+            new_data = data.copy()
+            new_data['project'] = project.id
+            new_data['board'] = board.id
         except Project.DoesNotExist:
             return Response(
                 {'error': 'Project does not exist'},
@@ -73,7 +71,7 @@ class BoardSectionViewSet(BaseViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         serializer_class = self.get_serializer_class()
-        serializer = serializer_class(data=data)
+        serializer = serializer_class(data=new_data)
         if (serializer.is_valid(raise_exception=False)):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
