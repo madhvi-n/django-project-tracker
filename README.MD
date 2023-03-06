@@ -1,4 +1,7 @@
 # Project Tracker
+[![Django CI](https://github.com/madhvi-n/django-project-tracker/actions/workflows/django.yml/badge.svg)](https://github.com/madhvi-n/django-project-tracker/actions/workflows/django.yml)
+
+
 A project management app based on Django
 
 # Features
