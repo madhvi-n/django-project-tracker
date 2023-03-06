@@ -8,8 +8,10 @@ class ProjectAdmin(admin.ModelAdmin):
         'id',
         'uuid',
         'name',
+        'slug',
         'user'
     )
     raw_id_fields = (
         'user',
     )
+    readonly_fields = ('slug',)

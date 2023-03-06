@@ -28,18 +28,6 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         project = Project.objects.create(**validated_data)
-        board_name = f"{project.name}'s board"
-        board = Board.objects.create(
-            project=project,
-            name=board_name,
-            key=project.name[:4].upper()
-        )
-        if board:
-            for section in ["To Do", "In Progress", "Done"]:
-                BoardSection.objects.create(
-                    board=board,
-                    title=section
-                )
         return project
 
     def update(self, instance, validated_data):

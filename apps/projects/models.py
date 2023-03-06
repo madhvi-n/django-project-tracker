@@ -1,7 +1,7 @@
 from django.db import models
 from core.models import TimeStampedModel
 from django.contrib.auth.models import User
-
+from django.utils.text import slugify
 import uuid
 
 class Project(TimeStampedModel):
@@ -30,3 +30,12 @@ class Project(TimeStampedModel):
 
     def __str__(self):
         return f"{self.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        count = Project.objects.filter(slug__startswith=self.slug).count()
+        if count > 0:
+            self.slug = f"{self.slug}-{count + 1}"
+        super().save(*args, **kwargs)
