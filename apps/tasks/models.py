@@ -54,3 +54,6 @@ class Task(TimeStampedModel):
         blank=True,
         null=True
     )
+
+    def __str__(self):
+        return f"{self.type.title}: {self.summary}"
