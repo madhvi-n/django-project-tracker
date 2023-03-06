@@ -33,15 +33,24 @@ class Task(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="tasks"
     )
-    summary = models.CharField(max_length=100)
+    summary = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
     assignee = models.ForeignKey(
         User,
         related_name="assigned_tasks",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
     )
     reporter = models.ForeignKey(
         User,
         related_name="reported_tasks",
         on_delete=models.CASCADE
+    )
+    children = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        related_name='subtasks',
+        blank=True,
+        null=True
     )
